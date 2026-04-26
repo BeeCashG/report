@@ -18,9 +18,9 @@ export const metadata: Metadata = {
   description: "Track student page editing, payments, and files.",
 };
 
-import { Sidebar } from "@/components/Sidebar";
-import { TopBar } from "@/components/TopBar";
-import { Toaster } from "@/components/ui/sonner";
+import { Sidebar } from "../components/Sidebar";
+import { TopBar } from "../components/TopBar";
+import { Toaster } from "../components/ui/sonner";
 
 export default function RootLayout({
   children,

@@ -7,8 +7,8 @@ import {
   CardHeader, 
   CardTitle,
   CardDescription
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+} from "../../components/ui/card";
+import { Button } from "../../components/ui/button";
 import { 
   FileText, 
   Download, 
@@ -18,8 +18,8 @@ import {
   Calendar,
   User
 } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { recordService } from "@/services/recordService";
+import { Input } from "../../components/ui/input";
+import { recordService } from "../../services/recordService";
 import { PageRecord } from "@/types";
 import { format } from "date-fns";
 
