@@ -1,16 +1,16 @@
 export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";
-import db from "@/lib/db";
+import { query } from "@/lib/db";
 
 export async function GET() {
   try {
-    const allStudents = db.prepare("SELECT * FROM Student ORDER BY name ASC").all();
-    const allRecords: any[] = db.prepare("SELECT * FROM PageRecord ORDER BY date DESC").all();
-    const allPayments: any[] = db.prepare("SELECT * FROM Payment ORDER BY date DESC").all();
+    const allStudents: any = await query("SELECT * FROM Student ORDER BY name ASC");
+    const allRecords: any = await query("SELECT * FROM PageRecord ORDER BY date DESC");
+    const allPayments: any = await query("SELECT * FROM Payment ORDER BY date DESC");
 
-    const totalPages = allRecords.reduce((sum, r) => sum + r.pagesEdited, 0);
+    const totalPages = allRecords.reduce((sum: number, r: any) => sum + r.pagesEdited, 0);
     const totalEarnings = totalPages * 100;
-    const totalPaid = allPayments.reduce((sum, p) => sum + p.amountPaid, 0);
+    const totalPaid = allPayments.reduce((sum: number, p: any) => sum + Number(p.amountPaid), 0);
 
     return NextResponse.json({
       students: allStudents,

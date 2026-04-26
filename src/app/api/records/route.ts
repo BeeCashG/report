@@ -1,6 +1,6 @@
 export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";
-import db from "@/lib/db";
+import { query, getOne } from "@/lib/db";
 import { saveFile } from "@/lib/storage";
 import { v4 as uuidv4 } from "uuid";
 
@@ -11,9 +11,9 @@ export async function GET(req: Request) {
     
     let records;
     if (studentId) {
-      records = db.prepare("SELECT * FROM PageRecord WHERE studentId = ? ORDER BY date DESC").all(studentId);
+      records = await query("SELECT * FROM PageRecord WHERE studentId = ? ORDER BY date DESC", [studentId]);
     } else {
-      records = db.prepare("SELECT * FROM PageRecord ORDER BY date DESC").all();
+      records = await query("SELECT * FROM PageRecord ORDER BY date DESC");
     }
     return NextResponse.json(records);
   } catch (error) {
@@ -34,16 +34,18 @@ export async function POST(req: Request) {
     let pdfUrl = "";
     let pdfName = "";
 
-    if (file) {
+    if (file && file.size > 0) {
       pdfUrl = await saveFile(file);
       pdfName = file.name;
     }
 
     const id = uuidv4();
-    const stmt = db.prepare("INSERT INTO PageRecord (id, studentId, studentName, date, pagesEdited, notes, pdfUrl, pdfName) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-    stmt.run(id, studentId, studentName, date, pagesEdited, notes || null, pdfUrl || null, pdfName || null);
+    await query(
+      "INSERT INTO PageRecord (id, studentId, studentName, date, pagesEdited, notes, pdfUrl, pdfName) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+      [id, studentId, studentName, date, pagesEdited, notes || null, pdfUrl || null, pdfName || null]
+    );
 
-    const record = db.prepare("SELECT * FROM PageRecord WHERE id = ?").get(id);
+    const record = await getOne("SELECT * FROM PageRecord WHERE id = ?", [id]);
     return NextResponse.json(record);
   } catch (error) {
     console.error("Error creating record:", error);

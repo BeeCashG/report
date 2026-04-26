@@ -1,6 +1,6 @@
 export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";
-import db from "@/lib/db";
+import { query, getOne } from "@/lib/db";
 import { deleteFile } from "@/lib/storage";
 
 export async function DELETE(
@@ -10,13 +10,13 @@ export async function DELETE(
   try {
     const { id } = await params;
     
-    const record: any = db.prepare("SELECT pdfUrl FROM PageRecord WHERE id = ?").get(id);
+    const record: any = await getOne("SELECT pdfUrl FROM PageRecord WHERE id = ?", [id]);
 
     if (record?.pdfUrl) {
       await deleteFile(record.pdfUrl);
     }
 
-    db.prepare("DELETE FROM PageRecord WHERE id = ?").run(id);
+    await query("DELETE FROM PageRecord WHERE id = ?", [id]);
     
     return NextResponse.json({ success: true });
   } catch (error) {

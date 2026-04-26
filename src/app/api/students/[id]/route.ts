@@ -1,6 +1,6 @@
 export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";
-import db from "@/lib/db";
+import { query, getOne } from "@/lib/db";
 
 export async function GET(
   req: Request,
@@ -8,25 +8,28 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    const student = db.prepare("SELECT * FROM Student WHERE id = ?").get(id);
+    const student = await getOne("SELECT * FROM Student WHERE id = ?", [id]);
+    if (!student) {
+      return NextResponse.json({ error: "Student not found" }, { status: 404 });
+    }
     return NextResponse.json(student);
   } catch (error) {
     return NextResponse.json({ error: "Failed to fetch student" }, { status: 500 });
   }
 }
 
-export async function PATCH(
+export async function PUT(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id } = await params;
     const body = await req.json();
-    
-    const stmt = db.prepare("UPDATE Student SET name = ?, projectTitle = ?, contact = ? WHERE id = ?");
-    stmt.run(body.name, body.projectTitle || null, body.contact || null, id);
-    
-    const student = db.prepare("SELECT * FROM Student WHERE id = ?").get(id);
+    await query(
+      "UPDATE Student SET name = ?, thesisTitle = ?, contact = ? WHERE id = ?",
+      [body.name, body.thesisTitle || null, body.contact || null, id]
+    );
+    const student = await getOne("SELECT * FROM Student WHERE id = ?", [id]);
     return NextResponse.json(student);
   } catch (error) {
     return NextResponse.json({ error: "Failed to update student" }, { status: 500 });
@@ -39,7 +42,7 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params;
-    db.prepare("DELETE FROM Student WHERE id = ?").run(id);
+    await query("DELETE FROM Student WHERE id = ?", [id]);
     return NextResponse.json({ success: true });
   } catch (error) {
     return NextResponse.json({ error: "Failed to delete student" }, { status: 500 });
