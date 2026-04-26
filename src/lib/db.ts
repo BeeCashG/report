@@ -1,16 +1,16 @@
 import mysql from "mysql2/promise";
 
 const pool = mysql.createPool({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
-  port: parseInt(process.env.DB_PORT || "3306"),
+  host: (process.env.DB_HOST || "").trim(),
+  user: (process.env.DB_USER || "").trim(),
+  password: (process.env.DB_PASSWORD || "").trim(),
+  database: (process.env.DB_NAME || "").trim(),
+  port: parseInt((process.env.DB_PORT || "3306").trim()),
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
   ssl: {
-    rejectUnauthorized: false, // Allows connection even if SSL cert is self-signed/missing
+    rejectUnauthorized: false,
   },
 });
 
@@ -22,9 +22,7 @@ export async function query(sql: string, params: any[] = []) {
     console.error("❌ DATABASE ERROR:", {
       message: error.message,
       code: error.code,
-      errno: error.errno,
-      sqlState: error.sqlState,
-      sql: sql
+      hostname: (process.env.DB_HOST || "").trim()
     });
     throw error;
   }
