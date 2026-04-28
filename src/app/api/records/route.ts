@@ -41,11 +41,17 @@ export async function POST(req: Request) {
 
     const id = uuidv4();
     await query(
-      "INSERT INTO PageRecord (id, studentId, studentName, date, pagesEdited, notes, pdfUrl, pdfName) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-      [id, studentId, studentName, date, pagesEdited, notes || null, pdfUrl || null, pdfName || null]
+      "INSERT INTO WorkRecord (id, student_id, date, description, file_url) VALUES (?, ?, ?, ?, ?)",
+      [
+        id, 
+        studentId ?? null, 
+        date ?? null, 
+        notes || "", 
+        pdfUrl || null
+      ]
     );
 
-    const record = await getOne("SELECT * FROM PageRecord WHERE id = ?", [id]);
+    const record = await getOne("SELECT * FROM WorkRecord WHERE id = ?", [id]);
     return NextResponse.json(record);
   } catch (error) {
     console.error("Error creating record:", error);

@@ -25,11 +25,16 @@ export async function POST(req: Request) {
     const body = await req.json();
     const id = uuidv4();
     await query(
-      "INSERT INTO Payment (id, studentId, studentName, amountPaid, date, notes) VALUES (?, ?, ?, ?, ?, ?)",
-      [id, body.studentId, body.studentName, parseFloat(body.amountPaid), body.date, body.notes || null]
+      "INSERT INTO PaymentRecord (id, student_id, amount, date) VALUES (?, ?, ?, ?)",
+      [
+        id, 
+        body.studentId ?? null, 
+        parseFloat(body.amountPaid) || 0, 
+        body.date ?? null
+      ]
     );
     
-    const payment = await getOne("SELECT * FROM Payment WHERE id = ?", [id]);
+    const payment = await getOne("SELECT * FROM PaymentRecord WHERE id = ?", [id]);
     return NextResponse.json(payment);
   } catch (error) {
     return NextResponse.json({ error: "Failed to create payment" }, { status: 500 });

@@ -19,7 +19,16 @@ export async function POST(req: Request) {
 
     await query(
       "INSERT INTO Student (id, name, email, phone, course, total_fee, paid_fee) VALUES (?, ?, ?, ?, ?, ?, ?)",
-      [id, name, email, phone, course, total_fee, paid_fee]
+      [
+        id, 
+        name || null, 
+        name ?? null, 
+        email ?? null, 
+        phone ?? null, 
+        course ?? null, 
+        total_fee ?? 0, 
+        paid_fee ?? 0
+      ]
     );
 
     const student = await getOne("SELECT * FROM Student WHERE id = ?", [id]);
